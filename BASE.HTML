@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spin & Win</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: rgb(1, 67, 83);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      font-family: sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* --- PAGE CONTAINERS --- */
+    .page {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .active {
+      display: flex;
+    }
+
+    /* --- FORM PAGE --- */
+    #pageForm {
+      color: white;
+    }
+
+    .user-form {
+      background: rgba(0, 142, 153, 0.9);
+      padding: 20px 30px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .user-form input {
+      margin: 8px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      width: 220px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .user-form button {
+      margin-top: 10px;
+      background: #ef5061;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* --- WHEEL PAGE --- */
+    .wheel-container {
+      position: relative;
+      margin-top: 50px;
+      width: 300px;
+      height: 300px;
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(
+        #ef5061 0deg 45deg,
+        #008e99 45deg 90deg,
+        #ef5061 90deg 135deg,
+        #008e99 135deg 180deg,
+        #ef5061 180deg 225deg,
+        #008e99 225deg 270deg,
+        #ef5061 270deg 315deg,
+        #008e99 315deg 360deg
+      );
+      border: 5px solid white;
+      transition: transform 5s cubic-bezier(0.33, 1, 0.68, 1);
+      position: relative;
+      z-index: 10;
+    }
+
+    .wheel-number {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .wheel-number img {
+      position: absolute;
+      transform-origin: center;
+    }
+
+    .n1 { width: 50px; height: 50px; transform: rotate(22.5deg) translateY(-105px) rotate(-1.5deg); }
+    .n2 { width: 60px; height: 60px; transform: rotate(67.5deg) translateY(-100px) rotate(-1.5deg); }
+    .n3 { width: 50px; height: 65px; transform: rotate(112.5deg) translateY(-110px) rotate(-1.5deg); }
+    .n4 { width: 45px; height: 45px; transform: rotate(157.5deg) translateY(-100px) rotate(-1.5deg); }
+    .n5 { width: 55px; height: 55px; transform: rotate(202.5deg) translateY(-100px) rotate(-1.5deg); }
+    .n6 { width: 50px; height: 35px; transform: rotate(247.5deg) translateY(-105px) rotate(-1.5deg); }
+    .n7 { width: 60px; height: 50px; transform: rotate(292.5deg) translateY(-100px) rotate(-1.5deg); }
+    .n8 { width: 50px; height: 35px; transform: rotate(337.5deg) translateY(-105px) rotate(-1.5deg); }
+
+    .center-dot {
+      width: 30px;
+      height: 30px;
+      background: #ffffff;
+      border-radius: 50%;
+      position: absolute;
+      top: calc(50% - 15px);
+      left: calc(50% - 15px);
+      z-index: 15;
+    }
+
+    .arrow {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 35px solid white;
+      position: absolute;
+      top: 290px;
+      left: calc(50% - 20px);
+      z-index: 20;
+    }
+
+    .base {
+      width: 200px;
+      height: 350px;
+      background: #008e99;
+      clip-path: polygon(30% 0, 70% 0, 100% 100%, 0% 100%);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      position: relative;
+      z-index: 1;
+      margin-top: -40px;
+    }
+
+    .bottom-block {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 150px;
+      background: #008e99;
+      z-index: -1;
+    }
+
+    .result {
+      margin-top: 30px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #fff;
+      text-align: center;
+      min-height: 30px;
+    }
+
+    .bottom-logo {
+      position: fixed;
+      top: 1150px;
+      left: center;
+      width: 160px;
+      height: auto;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE 1: FORM -->
+  <div class="page active" id="pageForm">
+    <form class="user-form" id="userForm">
+      <h2>Enter Your Details</h2>
+      <input type="text" id="userName" placeholder="Enter Name" required>
+      <input type="tel" id="userMobile" placeholder="Enter Mobile Number" required>
+      <button type="submit">Continue</button>
+    </form>
+  </div>
+
+  <!-- PAGE 2: WHEEL -->
+  <div class="page" id="pageWheel">
+    <!-- logo only on wheel page -->
+    <img src="9.png" alt="Logo" class="bottom-logo" />
+
+    <div class="wheel-container">
+      <div class="wheel" id="wheel">
+        <div class="wheel-number">
+          <img src="2.png" class="n1" />
+          <img src="5.png" class="n2" />
+          <img src="1.png" class="n3" />
+          <img src="2.png" class="n4" />
+          <img src="3.png" class="n5" />
+          <img src="6.png" class="n6" />
+          <img src="4.png" class="n7" />
+          <img src="7.png" class="n8" />
+        </div>
+      </div>
+      <div class="center-dot"></div>
+      <div class="arrow"></div>
+    </div>
+
+    <div class="base">
+      <div class="bottom-block"></div>
+    </div>
+
+    <div class="result" id="result"></div>
+  </div>
+<script>
+  const formPage = document.getElementById("pageForm");
+  const wheelPage = document.getElementById("pageWheel");
+  const form = document.getElementById("userForm");
+  const wheel = document.getElementById("wheel");
+  const result = document.getElementById("result");
+
+  let userName = "";
+  let userMobile = "";
+  let deg = 0;
+  let isSpinning = false;
+
+  const prizes = {
+    1: "Key Tag",
+    2: "Bad Luck",
+    3: "Pen",
+    4: "Book Pack",
+    5: "Mug",
+    6: "Tissue Box",
+    7: "Lucky Draw",
+    8: "Try Again"
+  };
+
+  // ✅ Your Google Apps Script Web App URL
+  const scriptURL = "https://script.google.com/macros/s/AKfycbw4dAQHF0Yg0gAei6Zuk15l7uU5ZiGZLgj5w_VdhgTgez6bdQlYz0P_chTgev60V6j9/exec";
+
+  // === Step 1: Move to wheel page after form submit ===
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = document.getElementById("userName").value.trim();
+    const mobile = document.getElementById("userMobile").value.trim();
+
+    if (!name || !mobile) {
+      alert("Please enter your name and mobile number!");
+      return;
+    }
+
+    userName = name;
+    userMobile = mobile;
+
+    // Show wheel
+    formPage.classList.remove("active");
+    wheelPage.classList.add("active");
+    result.textContent = "Tap anywhere to spin!";
+  });
+
+  // === Step 2: Wheel spin logic ===
+  function spin() {
+    if (!wheelPage.classList.contains("active") || isSpinning) return;
+    isSpinning = true;
+    result.textContent = "Spinning...";
+
+    const min = 360;
+    const max = 3600;
+    const rotateBy = Math.floor(Math.random() * (max - min + 1)) + min;
+    deg += rotateBy;
+    wheel.style.transition = "transform 5s ease-out";
+    wheel.style.transform = `rotate(${deg}deg)`;
+
+    setTimeout(() => {
+      const normalizedDeg = deg % 360;
+      const sectorAngle = 360 / 8;
+      const winningIndex = Math.floor(((360 - normalizedDeg + sectorAngle / 2) % 360) / sectorAngle) + 1;
+      const prize = prizes[winningIndex] || "Unknown";
+
+      result.textContent = `🎉 ${userName}, you won: ${prize}!`;
+
+      // === Step 3: Send data to Google Sheet ===
+      fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors", // prevents CORS errors
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: userName,
+          mobile: userMobile,
+          prize: prize
+        }),
+      })
+      .then(() => console.log("✅ Data sent to Google Sheet"))
+      .catch((err) => console.error("❌ Error sending data:", err));
+
+      // === Step 4: Reset after 2 seconds ===
+      setTimeout(() => {
+        result.textContent = "";
+        form.reset();
+        wheelPage.classList.remove("active");
+        formPage.classList.add("active");
+        wheel.style.transition = "none";
+        wheel.style.transform = "rotate(0deg)";
+        isSpinning = false;
+      }, 2000);
+
+    }, 5000); // match the spin duration
+  }
+
+  // Tap anywhere to spin
+  document.body.addEventListener("click", spin);
+</script>
+
+
+</body>
+</html>
